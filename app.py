@@ -76,11 +76,11 @@ def encrypt_aes(data: bytes) -> bytes:
 
 def build_major_login(open_id: str, access_token: str, platform_type: int) -> bytes:
     major = MajorLogin()
-    # OB54 updated values from payload
-    major.event_time = "2025-11-26 01:51:28"  # Updated
+    # OB55 updated values from payload
+    major.event_time = "2026-09-19 12:00:00"  # Updated for OB55
     major.game_name = "free fire"
     major.platform_id = 1
-    major.client_version = "1.126.1"  # Changed: OB54 version
+    major.client_version = "1.132.3"  # Changed: OB55 version
     major.system_software = "Android OS 9 / API-28 (PI/rel.cjw.20220518.114133)"  # Updated
     major.system_hardware = "Handheld"
     major.telecom_operator = "MTN/Spacecetal"  # Updated
@@ -147,7 +147,7 @@ def try_major_login(open_id: str, access_token: str, platform_type: int):
         "Content-Type": "application/x-www-form-urlencoded",
         "X-Unity-Version": "2018.4.11f1",
         "X-GA": "v1 1",
-        "ReleaseVersion": "OB54"
+        "ReleaseVersion": "OB55"  # Changed: OB54 -> OB55
     }
     try:
         resp = requests.post(url, data=encrypted_payload, headers=headers, verify=False, timeout=10)
@@ -234,9 +234,6 @@ def token_endpoint():
             last_error = f"Failed with platform_type {pt}"
     # If we get here, all attempts failed
     return jsonify({
-
-
-
         "success": False,
         "error": "MajorLogin failed. Account may be banned, not registered, or token invalid.",
         "detail": last_error
