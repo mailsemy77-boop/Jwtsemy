@@ -1,255 +1,254 @@
+import time
 import json
-import requests
-import sys
 import base64
-from datetime import datetime
-from flask import Flask, request, jsonify
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
 
-# -------------------- Include protobuf generated code --------------------
+import httpx
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from Crypto.Cipher import AES
+
+from google.protobuf import json_format
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool
+from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+from google.protobuf.message import Message
+
+
+# ============================================================
+#  PART 1 — FreeFire_pb2 (inlined)
+# ============================================================
+
+_runtime_version.ValidateProtobufRuntimeVersion(
+    _runtime_version.Domain.PUBLIC, 6, 30, 0, "", "FreeFire.proto",
+)
 
 _sym_db = _symbol_database.Default()
 
-# --- MajorLoginReq protobuf ---
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13MajorLoginReq.proto\"\xfa\n\n\nMajorLogin\x12\x12\n\nevent_time\x18\x03 \x01(\t\x12\x11\n\tgame_name\x18\x04 \x01(\t\x12\x13\n\x0bplatform_id\x18\x05 \x01(\x05\x12\x16\n\x0e\x63lient_version\x18\x07 \x01(\t\x12\x17\n\x0fsystem_software\x18\x08 \x01(\t\x12\x17\n\x0fsystem_hardware\x18\t \x01(\t\x12\x18\n\x10telecom_operator\x18\n \x01(\t\x12\x14\n\x0cnetwork_type\x18\x0b \x01(\t\x12\x14\n\x0cscreen_width\x18\x0c \x01(\r\x12\x15\n\rscreen_height\x18\r \x01(\r\x12\x12\n\nscreen_dpi\x18\x0e \x01(\t\x12\x19\n\x11processor_details\x18\x0f \x01(\t\x12\x0e\n\x06memory\x18\x10 \x01(\r\x12\x14\n\x0cgpu_renderer\x18\x11 \x01(\t\x12\x13\n\x0bgpu_version\x18\x12 \x01(\t\x12\x18\n\x10unique_device_id\x18\x13 \x01(\t\x12\x11\n\tclient_ip\x18\x14 \x01(\t\x12\x10\n\x08language\x18\x15 \x01(\t\x12\x0f\n\x07open_id\x18\x16 \x01(\t\x12\x14\n\x0copen_id_type\x18\x17 \x01(\t\x12\x13\n\x0b\x64\x65vice_type\x18\x18 \x01(\t\x12\'\n\x10memory_available\x18\x19 \x01(\x0b\x32\r.GameSecurity\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x1d \x01(\t\x12\x17\n\x0fplatform_sdk_id\x18\x1e \x01(\x05\x12\x1a\n\x12network_operator_a\x18) \x01(\t\x12\x16\n\x0enetwork_type_a\x18* \x01(\t\x12\x1c\n\x14\x63lient_using_version\x18\x39 \x01(\t\x12\x1e\n\x16\x65xternal_storage_total\x18< \x01(\x05\x12\"\n\x1a\x65xternal_storage_available\x18= \x01(\x05\x12\x1e\n\x16internal_storage_total\x18> \x01(\x05\x12\"\n\x1ainternal_storage_available\x18? \x01(\x05\x12#\n\x1bgame_disk_storage_available\x18@ \x01(\x05\x12\x1f\n\x17game_disk_storage_total\x18\x41 \x01(\x05\x12%\n\x1d\x65xternal_sdcard_avail_storage\x18\x42 \x01(\x05\x12%\n\x1d\x65xternal_sdcard_total_storage\x18\x43 \x01(\x05\x12\x10\n\x08login_by\x18I \x01(\x05\x12\x14\n\x0clibrary_path\x18J \x01(\t\x12\x12\n\nreg_avatar\x18L \x01(\x05\x12\x15\n\rlibrary_token\x18M \x01(\t\x12\x14\n\x0c\x63hannel_type\x18N \x01(\x05\x12\x10\n\x08\x63pu_type\x18O \x01(\x05\x12\x18\n\x10\x63pu_architecture\x18Q \x01(\t\x12\x1b\n\x13\x63lient_version_code\x18S \x01(\t\x12\x14\n\x0cgraphics_api\x18V \x01(\t\x12\x1d\n\x15supported_astc_bitset\x18W \x01(\r\x12\x1a\n\x12login_open_id_type\x18X \x01(\x05\x12\x18\n\x10\x61nalytics_detail\x18Y \x01(\x0c\x12\x14\n\x0cloading_time\x18\\ \x01(\r\x12\x17\n\x0frelease_channel\x18] \x01(\t\x12\x12\n\nextra_info\x18^ \x01(\t\x12 \n\x18\x61ndroid_engine_init_flag\x18_ \x01(\r\x12\x0f\n\x07if_push\x18\x61 \x01(\x05\x12\x0e\n\x06is_vpn\x18\x62 \x01(\x05\x12\x1c\n\x14origin_platform_type\x18\x63 \x01(\t\x12\x1d\n\x15primary_platform_type\x18\x64 \x01(\t\"5\n\x0cGameSecurity\x12\x0f\n\x07version\x18\x06 \x01(\x05\x12\x14\n\x0chidden_value\x18\x08 \x01(\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x0e\x46reeFire.proto"c\n\x08LoginReq\x12\x0f\n\x07open_id\x18\x16 \x01(\t'
+    b'\x12\x14\n\x0copen_id_type\x18\x17 \x01(\t\x12\x13\n\x0blogin_token\x18\x1d '
+    b'\x01(\t\x12\x1b\n\x13orign_platform_type\x18\x63 \x01(\t"]\n\x10\x42lacklist'
+    b'InfoRes\x12\x1e\n\nban_reason\x18\x01 \x01(\x0e\x32\n.BanReason\x12\x17\n'
+    b'\x0f\x65xpire_duration\x18\x02 \x01(\r\x12\x10\n\x08\x62\x61n_time\x18\x03 '
+    b'\x01(\r"f\n\x0eLoginQueueInfo\x12\r\n\x05\x61llow\x18\x01 \x01(\x08\x12'
+    b'\x16\n\x0equeue_position\x18\x02 \x01(\r\x12\x16\n\x0eneed_wait_secs\x18'
+    b'\x03 \x01(\r\x12\x15\n\rqueue_is_full\x18\x04 \x01(\x08"\xa0\x03\n\x08'
+    b'LoginRes\x12\x12\n\naccount_id\x18\x01 \x01(\x04\x12\x13\n\x0block_region'
+    b'\x18\x02 \x01(\t\x12\x13\n\x0bnoti_region\x18\x03 \x01(\t\x12\x11\n\tip_'
+    b'region\x18\x04 \x01(\t\x12\x19\n\x11\x61gora_environment\x18\x05 \x01(\t'
+    b'\x12\x19\n\x11new_active_region\x18\x06 \x01(\t\x12\x19\n\x11recommend_'
+    b'regions\x18\x07 \x03(\t\x12\r\n\x05token\x18\x08 \x01(\t\x12\x0b\n\x03ttl'
+    b'\x18\t \x01(\r\x12\x12\n\nserver_url\x18\n \x01(\t\x12\x16\n\x0e\x65mul'
+    b'ator_score\x18\x0b \x01(\r\x12$\n\tblacklist\x18\x0c \x01(\x0b\x32\x11.'
+    b'BlacklistInfoRes\x12#\n\nqueue_info\x18\r \x01(\x0b\x32\x0f.LoginQueue'
+    b'Info\x12\x0e\n\x06tp_url\x18\x0e \x01(\t\x12\x15\n\rapp_server_id\x18'
+    b'\x0f \x01(\r\x12\x0f\n\x07\x61no_url\x18\x10 \x01(\t\x12\x0f\n\x07ip_city'
+    b'\x18\x11 \x01(\t\x12\x16\n\x0eip_subdivision\x18\x12 \x01(\t*\xa8\x01\n'
+    b'\tBanReason\x12\x16\n\x12\x42\x41N_REASON_UNKNOWN\x10\x00\x12\x1b\n\x17'
+    b'\x42\x41N_REASON_IN_GAME_AUTO\x10\x01\x12\x15\n\x11\x42\x41N_REASON_'
+    b'REFUND\x10\x02\x12\x15\n\x11\x42\x41N_REASON_OTHERS\x10\x03\x12\x16\n'
+    b'\x12\x42\x41N_REASON_SKINMOD\x10\x04\x12 \n\x1b\x42\x41N_REASON_IN_GAME'
+    b'_AUTO_NEW\x10\xf6\x07\x62\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'MajorLoginReq_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "FreeFire_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_MAJORLOGIN']._serialized_start = 24
-  _globals['_MAJORLOGIN']._serialized_end = 1426
-  _globals['_GAMESECURITY']._serialized_start = 1428
-  _globals['_GAMESECURITY']._serialized_end = 1481
-MajorLogin = _globals['MajorLogin']
-GameSecurity = _globals['GameSecurity']
+    DESCRIPTOR._loaded_options = None
+    _globals["_BANREASON"]._serialized_start = 738
+    _globals["_BANREASON"]._serialized_end = 906
+    _globals["_LOGINREQ"]._serialized_start = 18
+    _globals["_LOGINREQ"]._serialized_end = 117
+    _globals["_BLACKLISTINFORES"]._serialized_start = 119
+    _globals["_BLACKLISTINFORES"]._serialized_end = 212
+    _globals["_LOGINQUEUEINFO"]._serialized_start = 214
+    _globals["_LOGINQUEUEINFO"]._serialized_end = 316
+    _globals["_LOGINRES"]._serialized_start = 319
+    _globals["_LOGINRES"]._serialized_end = 735
 
-# --- MajorLoginRes protobuf ---
-DESCRIPTOR2 = _descriptor_pool.Default().AddSerializedFile(b'\n\x13MajorLoginRes.proto\"|\n\rMajorLoginRes\x12\x13\n\x0b\x61\x63\x63ount_uid\x18\x01 \x01(\x04\x12\x0e\n\x06region\x18\x02 \x01(\t\x12\r\n\x05token\x18\x08 \x01(\t\x12\x0b\n\x03url\x18\n \x01(\t\x12\x11\n\ttimestamp\x18\x15 \x01(\x03\x12\x0b\n\x03key\x18\x16 \x01(\x0c\x12\n\n\x02iv\x18\x17 \x01(\x0c\x62\x06proto3')
-_globals2 = globals()
-_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR2, _globals2)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR2, 'MajorLoginRes_pb2', _globals2)
-if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR2._loaded_options = None
-  _globals2['_MAJORLOGINRES']._serialized_start = 23
-  _globals2['_MAJORLOGINRES']._serialized_end = 147
-MajorLoginRes = _globals2['MajorLoginRes']
+LoginReq = _globals["LoginReq"]
+LoginRes = _globals["LoginRes"]
 
-# -------------------- End protobuf includes --------------------
 
-# -------------------- OB55 CONFIG --------------------
-RELEASE_VERSION = "OB55"
-CLIENT_VERSION = "1.132.1"
-CLIENT_VERSION_CODE = "2024019028"   # OB55 version code
-# -----------------------------------------------------
+# ============================================================
+#  PART 2 — Settings
+# ============================================================
 
-def get_garena_token(uid, password):
-    url = "https://ffmconnect.live.gop.garenanow.com/oauth/guest/token/grant"
-    headers = {
-        "User-Agent": "GarenaMSDK/4.0.19P9 (Vivo Y15c; Android 12; en;IN;)",
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-    data = {
-        "uid": uid,
-        "password": password,
-        "response_type": "token",
-        "client_type": "2",
-        "client_secret": "2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3",
-        "client_id": "100067"
-    }
+MAIN_KEY = base64.b64decode("WWcmdGMlREV1aDYlWmNeOA==")
+MAIN_IV = base64.b64decode("Nm95WkRyMjJFM3ljaGpNJQ==")
+RELEASEVERSION = "OB55"
+USERAGENT = "UnityPlayer/2018.4.12f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)"
+LOGIN_URL = "https://loginbp.ppmainecoonghj.com/"
+
+# Fast HTTP client (connection pooling + keep-alive)
+HTTP_LIMITS = httpx.Limits(max_keepalive_connections=20, max_connections=50)
+HTTP_TIMEOUT = httpx.Timeout(15.0, connect=5.0)
+_http_client = httpx.Client(limits=HTTP_LIMITS, timeout=HTTP_TIMEOUT)
+
+
+# ============================================================
+#  PART 3 — Flask App
+# ============================================================
+
+app = Flask(__name__)
+CORS(app)
+
+
+# ============================================================
+#  PART 4 — Helpers
+# ============================================================
+
+def pad(text: bytes) -> bytes:
+    padding_length = AES.block_size - (len(text) % AES.block_size)
+    return text + bytes([padding_length] * padding_length)
+
+
+def aes_cbc_encrypt(key: bytes, iv: bytes, plaintext: bytes) -> bytes:
+    return AES.new(key, AES.MODE_CBC, iv).encrypt(pad(plaintext))
+
+
+def json_to_proto(json_data: str, proto_message: Message) -> bytes:
+    json_format.ParseDict(json.loads(json_data), proto_message)
+    return proto_message.SerializeToString()
+
+
+def try_parse_login_res(data: bytes):
     try:
-        response = requests.post(url, headers=headers, data=data, verify=False, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-    except:
+        msg = LoginRes()
+        msg.ParseFromString(data)
+        if msg.account_id and msg.account_id > 0:
+            return json.loads(json_format.MessageToJson(msg))
+    except Exception:
         pass
     return None
 
 
-app = Flask(__name__)
+def extract_login_res(raw: bytes) -> dict:
+    # Attempt 1: from index 0
+    parsed = try_parse_login_res(raw)
+    if parsed:
+        return parsed
 
-# AES constants
-AES_KEY = bytes([89, 103, 38, 116, 99, 37, 68, 69, 117, 104, 54, 37, 90, 99, 94, 56])
-AES_IV = bytes([54, 111, 121, 90, 68, 114, 50, 50, 69, 51, 121, 99, 104, 106, 77, 37])
+    # Attempt 2: scan each \x08
+    idx = 0
+    while True:
+        idx = raw.find(b"\x08", idx)
+        if idx == -1:
+            break
+        parsed = try_parse_login_res(raw[idx:])
+        if parsed:
+            return parsed
+        idx += 1
 
-def encrypt_aes(data: bytes) -> bytes:
-    cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
-    return cipher.encrypt(pad(data, AES.block_size))
+    # Attempt 3: JWT marker prefix
+    jwt_marker = raw.find(b"eyJhbGciOiJIUzI1NiIs")
+    if jwt_marker != -1:
+        for i in range(jwt_marker - 1, max(jwt_marker - 300, -1), -1):
+            if raw[i] == 0x42:
+                parsed = try_parse_login_res(raw[i:])
+                if parsed:
+                    return parsed
+                break
 
-
-def build_major_login(open_id: str, access_token: str, platform_type: int) -> bytes:
-    major = MajorLogin()
-    # OB55 updated values
-    major.event_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    major.game_name = "free fire"
-    major.platform_id = 1
-    major.client_version = CLIENT_VERSION                 # OB55: 1.132.1
-    major.system_software = "Android OS 11 / API-30 (RKQ1.201112.002)"
-    major.system_hardware = "Handheld"
-    major.telecom_operator = "Verizon Wireless"
-    major.network_type = "WIFI"
-    major.screen_width = 1920
-    major.screen_height = 1080
-    major.screen_dpi = "240"
-    major.processor_details = "ARMv7 VFPv3 NEON VMH | 2400 | 4"
-    major.memory = 5951
-    major.gpu_renderer = "Adreno (TM) 640"
-    major.gpu_version = "OpenGL ES 3.2"
-    major.unique_device_id = "Google|74b585a9-0268-4ad3-8f36-ef41d2e53610"
-    major.client_ip = "172.190.111.97"
-    major.language = "en"
-    major.open_id = open_id
-    major.open_id_type = "4"
-    major.device_type = "Handheld"
-    major.memory_available.version = 55
-    major.memory_available.hidden_value = 81
-    major.access_token = access_token
-    major.platform_sdk_id = 1
-    major.network_operator_a = "Verizon Wireless"
-    major.network_type_a = "WIFI"
-    major.client_using_version = "9c9e9d3e1e1e5b2b6b1e5a4a0a1a2b3c"   # OB55 placeholder hash
-    major.external_storage_total = 47091
-    major.external_storage_available = 40784
-    major.internal_storage_total = 40784
-    major.internal_storage_available = 32080
-    major.game_disk_storage_available = 47221
-    major.game_disk_storage_total = 32080
-    major.external_sdcard_avail_storage = 47221
-    major.external_sdcard_total_storage = 32080
-    major.login_by = 3
-    major.library_path = "/data/app/com.dts.freefireth-fpXCSpHIV6dKC7jL-WOyRA==/lib/arm"
-    major.reg_avatar = 1
-    major.library_token = "e62ab9354d8fb5fb081db338acb33491|/data/app/com.dts.freefireth-fpXCSpHIV6dKC7jL-WOyRA==/base.apk"
-    major.channel_type = 3
-    major.cpu_type = 2
-    major.cpu_architecture = "32"
-    major.client_version_code = CLIENT_VERSION_CODE       # OB55 updated
-    major.graphics_api = "OpenGLES2"
-    major.supported_astc_bitset = 16383
-    major.login_open_id_type = 4
-    major.analytics_detail = b"\x15\x12\x14\x50\x0e\x59\x03\x49\x51\x0e\x46\x09\x00\x11\x58\x43\x39\x5f\x00\x5b\x51\x0f\x68\x5b\x56\x0a\x61\x07\x57\x6d\x0f\x03\x66"
-    major.loading_time = 48862
-    major.release_channel = "android"
-    major.extra_info = "KqsHT8W93GdcG3ZozENfFwVHtm7qq1eRUNaIDNgRobozIBtLOiYCc4Y6zvvpcICxzQF2sOE4cbytwLs4xZbRnpRMpmWRQKmeO5vcs8nQYBhwqH7K"
-    major.android_engine_init_flag = 110009
-    major.if_push = 1
-    major.is_vpn = 1
-    major.origin_platform_type = str(platform_type)
-    major.primary_platform_type = str(platform_type)
-    return major.SerializeToString()
+    raise Exception(f"Could not parse LoginRes. Raw: {raw[:200]}")
 
 
-def try_major_login(open_id: str, access_token: str, platform_type: int):
-    payload = build_major_login(open_id, access_token, platform_type)
-    encrypted_payload = encrypt_aes(payload)
-
-    url = "https://loginbp.ppmainecoonghj.com/MajorLogin"
+def get_access_token(account: str):
+    url = "https://ffmconnect.live.gop.garenanow.com/oauth/guest/token/grant"
+    payload = (
+        account
+        + "&response_type=token&client_type=2"
+        + "&client_secret=2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3"
+        + "&client_id=100067"
+    )
     headers = {
-        "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 11; ASUS_Z01QD Build/PI)",
+        "User-Agent": USERAGENT,
         "Connection": "Keep-Alive",
         "Accept-Encoding": "gzip",
         "Content-Type": "application/x-www-form-urlencoded",
-        "X-Unity-Version": "2018.4.11f1",
-        "X-GA": "v1 1",
-        "ReleaseVersion": RELEASE_VERSION,   # OB55
-        "X-Ga-Sv": "1789534056",
-        "PlAy_VeR": CLIENT_VERSION,
-        "Ob_VeR": RELEASE_VERSION,
     }
-    try:
-        resp = requests.post(url, data=encrypted_payload, headers=headers, verify=False, timeout=10)
-        if resp.status_code != 200:
-            return None
-        major_res = MajorLoginRes()
-        major_res.ParseFromString(resp.content)
-        if major_res.token:
-            return {
-                "account_uid": str(major_res.account_uid),
-                "region": major_res.region,
-                "token": major_res.token,
-                "url": major_res.url,
-                "timestamp": major_res.timestamp,
-                "key": major_res.key.hex(),
-                "iv": major_res.iv.hex()
-            }
-    except Exception as e:
-        print(f"MajorLogin error for platform {platform_type}: {e}")
-    return None
+    resp = _http_client.post(url, data=payload, headers=headers)
+    data = resp.json()
+    return data.get("access_token", "0"), data.get("open_id", "0")
 
 
-def decode_jwt(token: str) -> dict:
-    parts = token.split('.')
-    if len(parts) != 3:
-        return {}
-    try:
-        header = json.loads(base64.urlsafe_b64decode(parts[0] + '==').decode())
-        payload = json.loads(base64.urlsafe_b64decode(parts[1] + '==').decode())
-        return {"header": header, "payload": payload}
-    except Exception:
-        return {}
+def generate_jwt_token(uid: str, password: str):
+    start_time = time.time()
+
+    token_val, open_id = get_access_token(f"uid={uid}&password={password}")
+    if token_val == "0" or open_id == "0":
+        raise Exception("Invalid UID or Password — access token not received")
+
+    body = json.dumps({
+        "open_id": open_id,
+        "open_id_type": "4",
+        "login_token": token_val,
+        "orign_platform_type": "4",
+    })
+    proto_bytes = json_to_proto(body, LoginReq())
+    payload = aes_cbc_encrypt(MAIN_KEY, MAIN_IV, proto_bytes)
+
+    headers = {
+        "User-Agent": USERAGENT,
+        "Accept": "*/*",
+        "Accept-Encoding": "deflate, gzip",
+        "X-Ga-Sv": "1789534056",
+        "Authorization": "Bearer",
+        "X-Ga": "v1 1",
+        "Releaseversion": RELEASEVERSION,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-Unity-Version": "2018.4.12f1",
+        "PlAy_VeR": "1.132.1",
+        "Ob_VeR": RELEASEVERSION,
+    }
+
+    resp = _http_client.post(f"{LOGIN_URL}MajorLogin", data=payload, headers=headers)
+    msg = extract_login_res(resp.content)
+
+    elapsed = time.time() - start_time
+
+    return {
+        "access_token": token_val,
+        "open_id": open_id,
+        "real_uid": str(msg.get("accountId", "")),
+        "status": "success",
+        "time": f"{elapsed:.2f}s",
+        "token": f"{msg.get('token', '')}",
+    }
 
 
-@app.route('/token', methods=['GET'])
-def token_endpoint():
-    access_token = request.args.get('access_token')
-    uid = request.args.get('uid')
-    password = request.args.get('password')
+# ============================================================
+#  PART 5 — Routes
+# ============================================================
 
-    if uid and password:
-        garena_res = get_garena_token(uid, password)
-        if garena_res and 'access_token' in garena_res:
-            access_token = garena_res['access_token']
-        else:
-            return jsonify({"success": False, "error": "Garena Login Failed"}), 401
-
-    if not access_token:
-        return jsonify({"error": "Missing access_token or uid/password"}), 400
-
-    # Step 1: Get open_id from inspect
-    inspect_url = f"https://100067.connect.garena.com/oauth/token/inspect?token={access_token}"
-    try:
-        insp_resp = requests.get(inspect_url, timeout=10)
-        if insp_resp.status_code != 200:
-            return jsonify({"error": "Failed to inspect token", "status_code": insp_resp.status_code}), 400
-        insp_data = insp_resp.json()
-        open_id = insp_data.get('open_id')
-        if not open_id:
-            return jsonify({"error": "open_id not found in inspect response"}), 400
-    except Exception as e:
-        return jsonify({"error": f"Inspect request failed: {str(e)}"}), 500
-
-    # Step 2: Try each platform type
-    platform_types = [8, 3, 4, 6, 2]
-    last_error = None
-    for pt in platform_types:
-        result = try_major_login(open_id, access_token, pt)
-        if result:
-            jwt_decoded = decode_jwt(result['token'])
-            return jsonify({
-                "success": True,
-                "platform_type_used": pt,
-                "token": result['token'],
-                "jwt_decoded": jwt_decoded,
-                "account_uid": result['account_uid'],
-                "region": result['region'],
-                "url": result['url'],
-                "timestamp": result['timestamp']
-            })
-        else:
-            last_error = f"Failed with platform_type {pt}"
-
+@app.route("/", methods=["GET"])
+def index():
     return jsonify({
-        "success": False,
-        "error": "MajorLogin failed. Account may be banned, not registered, or token invalid.",
-        "detail": last_error
-    }), 401
+        "status": "ok",
+        "endpoint": "/token?uid=UID&password=PASS",
+        "example": "/token?uid=18097039025&password=yourpass",
+    }), 200
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8006, debug=False)
+@app.route("/token", methods=["GET"])
+def get_jwt_token():
+    uid = request.args.get("uid")
+    password = request.args.get("password")
+
+    if not uid or not password:
+        return jsonify({
+            "status": "error",
+            "error": "Both uid and password parameters are required"
+        }), 400
+
+    try:
+        token_data = generate_jwt_token(uid, password)
+        return jsonify(token_data), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": f"Failed to generate token: {str(e)}"
+        }), 500
