@@ -1,3 +1,6 @@
+###Hey baby 🍼 If you leak this file under your own name and claim the credit, I'll fuck you with salt. 🥱
+
+
 import time
 import json
 import base64
@@ -252,3 +255,14 @@ def get_jwt_token():
             "status": "error",
             "error": f"Failed to generate token: {str(e)}"
         }), 500
+
+
+# ============================================================
+#  ENTRY POINT
+# ============================================================
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5002, debug=False)
+    
+    
+### Hey baby 🍼 If you leak this file under your own name and claim the credit, I'll fuck you with salt. 🥱
